@@ -1,78 +1,23 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Shield, AlertTriangle, CheckCircle, XCircle, ArrowRight } from "lucide-react"
-
-interface QuizQuestion {
-  id: number
-  type: "email" | "chat" | "phone"
-  title: string
-  content: string
-  sender?: string
-  isSuspicious: boolean
-  explanation: string
-}
-
-const quizQuestions: QuizQuestion[] = [
-  {
-    id: 1,
-    type: "email",
-    title: "Urgent Security Alert",
-    sender: "security@yourbank.com",
-    content:
-      "Your account has been compromised! Click here immediately to secure your account: https://secure-bank-login.net/verify",
-    isSuspicious: true,
-    explanation:
-      "This is a phishing email. Legitimate banks never ask you to click links in emails to verify accounts.",
-  },
-  {
-    id: 2,
-    type: "chat",
-    title: "IT Support Request",
-    sender: "IT Support",
-    content:
-      "Hi! This is John from IT. We're updating our systems and need your password to ensure your account stays active. Can you share it with me?",
-    isSuspicious: true,
-    explanation: "IT departments never ask for passwords via chat. This is a social engineering attempt.",
-  },
-  {
-    id: 3,
-    type: "email",
-    title: "Meeting Reminder",
-    sender: "calendar@company.com",
-    content: "Reminder: Team meeting tomorrow at 2 PM in Conference Room B. Please bring your quarterly reports.",
-    isSuspicious: false,
-    explanation: "This appears to be a legitimate internal meeting reminder with no suspicious requests.",
-  },
-  {
-    id: 4,
-    type: "phone",
-    title: "Phone Call Transcript",
-    sender: "Unknown Caller",
-    content:
-      "Hello, this is Microsoft Support. We've detected malicious activity on your computer. Please download our remote access tool so we can fix it immediately.",
-    isSuspicious: true,
-    explanation: "Microsoft does not make unsolicited calls. This is a common tech support scam.",
-  },
-  {
-    id: 5,
-    type: "email",
-    title: "Invoice Notification",
-    sender: "billing@company.com",
-    content:
-      "Your monthly subscription invoice is ready. Amount due: $29.99. Payment will be automatically processed on the 15th.",
-    isSuspicious: false,
-    explanation: "This appears to be a standard billing notification with no suspicious elements.",
-  },
-]
+import { getRandomQuestions, QuizQuestion } from "@/lib/questionBank" // Use alias if configured, else use "../../lib/questionBank"
 
 export default function QuizPage() {
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([])
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState<boolean[]>([])
   const [showFeedback, setShowFeedback] = useState(false)
   const [selectedAnswer, setSelectedAnswer] = useState<boolean | null>(null)
   const router = useRouter()
+
+  useEffect(() => {
+    setQuizQuestions(getRandomQuestions(5)) // Get 5 random questions each time
+  }, [])
+
+  if (quizQuestions.length === 0) return null
 
   const question = quizQuestions[currentQuestion]
   const progress = ((currentQuestion + 1) / quizQuestions.length) * 100
